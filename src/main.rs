@@ -2,17 +2,17 @@ mod api;
 mod background;
 
 use actix_web::{App, HttpServer};
-use api::auth;
-use background::cleanSession::{clean_sessions};
+use api::hello;
+use background::background_job::{background_job};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Run the background job
-    tokio::spawn(clean_sessions());
+    tokio::spawn(background_job());
 
     HttpServer::new(|| {
         App::new()
-            .service(auth::hello)
+            .service(hello::hello)
     })
     .bind("127.0.0.1:8080")?
     .run()
