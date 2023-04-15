@@ -1,14 +1,12 @@
-use actix_web::{get, HttpResponse, Responder};
 use serde::Serialize;
+use warp::{Filter, Rejection, Reply};
 
 #[derive(Serialize)]
 pub struct ApiResponse {
     message: String,
 }
 
-#[get("/")]
-pub async fn hello() -> impl Responder {
-    HttpResponse::Ok().json(ApiResponse {
-        message: "Hello, world!".to_string(),
-    })
+#[allow(opaque_hidden_inferred_bound)]
+pub fn hello() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    warp::path::end().map(|| "Hello, world!")
 }

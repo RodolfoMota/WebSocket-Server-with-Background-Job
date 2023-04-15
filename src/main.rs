@@ -1,20 +1,21 @@
 mod api;
 mod background;
+mod websocket;
 
-use actix_web::{App, HttpServer};
 use api::hello;
-use background::background_job::{background_job};
+use background::background_job::background_job;
+use warp::Filter;
+use websocket::my_websocket;
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() {
     // Run the background job
     tokio::spawn(background_job());
 
-    HttpServer::new(|| {
-        App::new()
-            .service(hello::hello)
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    let hello_route = hello::hello();
+    let ws_route = my_websocket::websocket();
+
+    let routes = hello_route.or(ws_route);
+
+    warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
 }
